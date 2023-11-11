@@ -17,7 +17,7 @@ require("lightgbm")
 PARAM <- list()
 PARAM$experimento <- "KA8240_baseline_exp_colab"
 
-PARAM$input$dataset <- "./datasets/dataset_baseline_exp_colab.csv.gz"
+PARAM$input$dataset <- "./datasets/datasets_dataset_baseline_exp_colab.csv.gz"
 
 # meses donde se entrena el modelo.
 # roll forward un mes
@@ -81,7 +81,7 @@ dtrain <- lgb.Dataset(
 # genero el modelo
 
 
-for (i in 1:20) {
+for (i in 1:50) {
   
   PARAM$finalmodel$semilla <- semillas[i]
   
@@ -130,7 +130,7 @@ for (i in 1:20) {
   param_completo <- c(PARAM$finalmodel$lgb_basicos,
                       PARAM$finalmodel$optim)
   
-
+  
   modelo <- lgb.train(
     data = dtrain,
     param = param_completo,
@@ -173,8 +173,8 @@ for (i in 1:20) {
   
   
   # genero archivos con los  "envios" mejores
-
-  cortes <- c(envios_opt,seq(8000, 15000, by = 500))
+  
+  cortes <- c(envios_opt)
   
   for (envios in cortes) {
     
@@ -201,9 +201,8 @@ for (i in 1:20) {
 }
 
 write.csv(ganancias,
-       file = paste0(PARAM$experimento, "_ganancias_semillerio.csv"),
-       sep = ","
+          file = paste0(PARAM$experimento, "_ganancias_semillerio.csv"),
+          sep = ","
 )
-  
+
 cat("\n\nLa generacion de los archivos para Kaggle ha terminado\n")
-  
