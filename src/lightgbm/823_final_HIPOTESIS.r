@@ -9,15 +9,16 @@ gc() # garbage collection
 
 require("data.table")
 require("lightgbm")
+require("dplyr")
 
 
 
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "KA8240_NO_baseline_exp_colab_CON_FE"
+PARAM$experimento <- "KA8240_baseline_exp_colab_CON_IMP_NULLS"
 
-PARAM$input$dataset <- "./datasets/dataset_baseline_exp_colab.csv.gz"
+PARAM$input$dataset <- "./datasets/datasets_dataset_baseline_exp_colab.csv.gz"
 
 # meses donde se entrena el modelo.
 # roll forward un mes
@@ -36,16 +37,23 @@ setwd("~/buckets/b1")
 # cargo el dataset donde voy a entrenar
 dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 
+any(is.na(dataset))
 
-## IMPUTO NULLS
+# Contar y mostrar la cantidad de NULLs
+cantidad_nulls <- sum(sapply(dataset, function(x) all(is.null(x))))
+print(paste("Cantidad de NULLs:", cantidad_nulls))
+
+# Contar y mostrar la cantidad de NAs
+cantidad_nas <- sum(sapply(dataset, function(x) any(is.na(x))))
+print(paste("Cantidad de NAs:", cantidad_nas))
+
+#IMPUTO NULSS
 dataset <- dataset %>%
   group_by(foto_mes) %>%
   mutate(across(everything(), ~ifelse(is.na(.), mean(., na.rm = TRUE), .))) %>%
   ungroup()
 
 setDT(dataset)
-
-
 
 truth <- dataset[foto_mes == PARAM$input$future,c("numero_de_cliente","clase_ternaria")]
 
@@ -92,7 +100,7 @@ dtrain <- lgb.Dataset(
 # genero el modelo
 
 
-for (i in 1:20) {
+for (i in 1:50) {
   
   PARAM$finalmodel$semilla <- semillas[i]
   
@@ -141,7 +149,7 @@ for (i in 1:20) {
   param_completo <- c(PARAM$finalmodel$lgb_basicos,
                       PARAM$finalmodel$optim)
   
-
+  
   modelo <- lgb.train(
     data = dtrain,
     param = param_completo,
@@ -184,8 +192,8 @@ for (i in 1:20) {
   
   
   # genero archivos con los  "envios" mejores
-
-  cortes <- c(envios_opt,seq(8000, 15000, by = 500))
+  
+  cortes <- c(envios_opt)
   
   for (envios in cortes) {
     
@@ -212,9 +220,8 @@ for (i in 1:20) {
 }
 
 write.csv(ganancias,
-       file = paste0(PARAM$experimento, "_ganancias_semillerio.csv"),
-       sep = ","
+          file = paste0(PARAM$experimento, "_ganancias_semillerio.csv"),
+          sep = ","
 )
-  
+
 cat("\n\nLa generacion de los archivos para Kaggle ha terminado\n")
-  
