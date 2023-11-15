@@ -37,20 +37,10 @@ setwd("~/buckets/b1")
 # cargo el dataset donde voy a entrenar
 dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 
-any(is.na(dataset))
-
-# Contar y mostrar la cantidad de NULLs
-cantidad_nulls <- sum(sapply(dataset, function(x) all(is.null(x))))
-print(paste("Cantidad de NULLs:", cantidad_nulls))
-
-# Contar y mostrar la cantidad de NAs
-cantidad_nas <- sum(sapply(dataset, function(x) any(is.na(x))))
-print(paste("Cantidad de NAs:", cantidad_nas))
-
-#IMPUTO NULSS
+#IMPUTO NA
 dataset <- dataset %>%
   group_by(foto_mes) %>%
-  mutate(across(everything(), ~ifelse(is.na(.), mean(., na.rm = TRUE), .))) %>%
+  mutate(across(where(is.numeric), ~ifelse(is.na(.), mean(., na.rm = TRUE), .))) %>%
   ungroup()
 
 setDT(dataset)
@@ -100,18 +90,18 @@ dtrain <- lgb.Dataset(
 # genero el modelo
 
 
-for (i in 1:50) {
+for (i in 1:100) {
   
   PARAM$finalmodel$semilla <- semillas[i]
   
   # hiperparametros intencionalmente 
-  PARAM$finalmodel$optim$num_iterations <- 349
-  PARAM$finalmodel$optim$learning_rate <- 0.059
-  PARAM$finalmodel$optim$feature_fraction <- 0.8016
-  PARAM$finalmodel$optim$min_data_in_leaf <- 2343
-  PARAM$finalmodel$optim$num_leaves <- 794
+  PARAM$finalmodel$optim$num_iterations <- 120
+  PARAM$finalmodel$optim$learning_rate <- 0.2239
+  PARAM$finalmodel$optim$feature_fraction <- 0.6062
+  PARAM$finalmodel$optim$min_data_in_leaf <- 6161
+  PARAM$finalmodel$optim$num_leaves <- 169
   
-  envios_opt <- 12205
+  envios_opt <- 11218
   
   
   # Hiperparametros FIJOS de  lightgbm
