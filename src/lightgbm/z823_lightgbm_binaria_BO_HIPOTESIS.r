@@ -304,9 +304,19 @@ klog <- paste0(PARAM$experimento, ".txt")
 #   aqui deben calcularse los  lags y  lag_delta
 #   Sin lags no hay paraiso !  corta la bocha
 
+#IMPUTO NA
 dataset <- dataset %>%
   group_by(foto_mes) %>%
-  mutate(across(everything(), ~ifelse(is.na(.), mean(., na.rm = TRUE), .))) %>%
+  mutate(across(where(is.numeric), ~ifelse(is.na(.), mean(., na.rm = TRUE), .))) %>%
+  ungroup()
+
+
+setDT(dataset)
+
+#IMPUTO NULL
+dataset <- dataset %>%
+  group_by(foto_mes) %>%
+  mutate(across(where(is.numeric), ~ifelse(is.null(.), mean(., na.rm = TRUE), .))) %>%
   ungroup()
 
 setDT(dataset)
