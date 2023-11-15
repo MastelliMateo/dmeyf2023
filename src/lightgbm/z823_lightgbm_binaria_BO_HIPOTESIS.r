@@ -35,7 +35,7 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "HT8230"
+PARAM$experimento <- "HT8216MM"
 
 PARAM$input$dataset <- "./datasets/datasets_dataset_baseline_exp_colab.csv.gz"
 
