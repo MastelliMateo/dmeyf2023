@@ -12,13 +12,13 @@ require("lightgbm")
 PARAM <- list()
 
 # Nombre del experimento
-PARAM$experimento <- "KA_SEM_01" 
+PARAM$experimento <- "KA_SEM_02_S100" 
 
 # Path donde se aloja el dataset (puede cargar su dataset preprocesado o puede hacerlo en el apartado de preprocesamiento de abajo)
-PARAM$input$dataset <- "./datasets/competencia_03.csv.gz"
+PARAM$input$dataset <- "./datasets/competencia_03_ternaria.csv.gz"
 
 # Meses donde se entrena el modelo
-PARAM$input$training <- c(202012, 202101, 202102, 202103, 202104, 202105, 202106, 202107)
+PARAM$input$training <- c(202006, 202007, 202008, 202009, 202010, 202011, 202012, 202101, 202102, 202103, 202104, 202105, 202106, 202107)
 
 # Mes donde aplico el modelo
 PARAM$input$future <- c(202109)
@@ -27,14 +27,14 @@ PARAM$input$future <- c(202109)
 
 # Parámetro variable (esto genera semillas con valor entre 15k y 80k, puede ajustar a preferencia)
 cantidad_semillas = 100 # Cuántas semillas desea ensamblar?
-semillas <- as.integer(seq(15000, 80000, length.out = cantidad_semillas))
+semillas <- as.integer(seq(1616, 323232, length.out = cantidad_semillas))
 
 # Parámetros fijos obtenidos en la Optimización Bayesiana 
-PARAM$finalmodel$num_iterations <- 671
-PARAM$finalmodel$learning_rate <- 0.0672851506440121
-PARAM$finalmodel$feature_fraction <- 0.516413796732882
-PARAM$finalmodel$min_data_in_leaf <- 6169
-PARAM$finalmodel$num_leaves <- 418
+PARAM$finalmodel$num_iterations <- 1187
+PARAM$finalmodel$learning_rate <- 0.0434038538714684
+PARAM$finalmodel$feature_fraction <- 0.20002871433977
+PARAM$finalmodel$min_data_in_leaf <- 19763
+PARAM$finalmodel$num_leaves <- 764
 PARAM$finalmodel$max_bin <- 31
 
 #---------------------------------CARGAR DATOS---------------------------------------------#
@@ -63,6 +63,15 @@ for (i in lags_a_calcular){
           by = numero_de_cliente, .SDcols = columnas_originales]
 }
 
+
+# Crear las nuevas columnas de diferencia
+for (i in lags_a_calcular) {
+  for (col in columnas_originales) {
+    nombre_col_original <- col
+    nombre_col_delta <- paste0("delta_", col, "_vs_lag_", i, "_", nombre_col_original)
+    dataset[, (nombre_col_delta) := get(col) - get(paste0("lag_", i, "_", col))]
+  }
+}
 
 
 
