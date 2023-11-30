@@ -1,0 +1,4 @@
+Primero correr el archivo "BO" para obtener los hiperparametros del Lightbm y luego 
+correr el archivo "KA3_ensemble_semillerio" el cual realiza el semillerio con 100 semillas y
+devuevle envios en función de los siguientes cortes:
+cortes <- seq(8000, 15000, by = 500)
